@@ -26,6 +26,24 @@ public final class BlurKeyboard {
     private BlurKeyboard() {
     }
 
+    private static boolean reported;
+
+    /** Test builds: tell once whether the system allows window blur at all. */
+    private static void reportBlurSupport(InputMethodService ime) {
+        if (reported) return;
+        reported = true;
+        try {
+            android.view.WindowManager wm = ime.getSystemService(android.view.WindowManager.class);
+            boolean on = wm != null && wm.isCrossWindowBlurEnabled();
+            android.widget.Toast.makeText(ime, on
+                    ? "Blur patch: system blur is ON"
+                    : "Blur patch: system blur is OFF (disabled by the phone: developer option, battery saver or firmware)",
+                    android.widget.Toast.LENGTH_LONG).show();
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Could not query blur support", e);
+        }
+    }
+
     /** The keyboard window must be translucent for the blur to show through. */
     public static void applyWindow(InputMethodService ime) {
         try {
@@ -40,6 +58,7 @@ public final class BlurKeyboard {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 window.setBackgroundBlurRadius(BLUR_RADIUS);
+                reportBlurSupport(ime);
             }
         } catch (RuntimeException e) {
             Log.w(TAG, "Could not set up the blurred window", e);
