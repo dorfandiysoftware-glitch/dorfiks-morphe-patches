@@ -37,19 +37,27 @@ val blurKeyboardPatch = patch(
         WindowShownFingerprint.method.addInstructions(0, window)
 
         // Frame and suggestion strip backgrounds.
-        val background = "invoke-static {p1, p2}, $EXTENSION_CLASS->afterBackground(Landroid/view/View;Ljava/lang/Object;)V"
+        val rememberBg = "invoke-static {p1, p2}, $EXTENSION_CLASS->rememberBackground(Ljava/lang/Object;Ljava/lang/Object;)V"
+        val background = "invoke-static {}, $EXTENSION_CLASS->afterBackground()V"
         listOf(
             AllColorsSetBackgroundFingerprint,
             DefaultColorsSetBackgroundFingerprint,
             DynamicColorsSetBackgroundFingerprint,
-        ).forEach { it.method.beforeEveryReturn(background) }
+        ).forEach {
+            it.method.beforeEveryReturn(background)
+            it.method.addInstructions(0, rememberBg)
+        }
 
         // Key backgrounds.
-        val keys = "invoke-static {p1, p2}, $EXTENSION_CLASS->afterKeyColor(Landroid/graphics/drawable/Drawable;Ljava/lang/Object;)V"
+        val rememberKey = "invoke-static {p1, p2}, $EXTENSION_CLASS->rememberKey(Ljava/lang/Object;Ljava/lang/Object;)V"
+        val keys = "invoke-static {}, $EXTENSION_CLASS->afterKeyColor()V"
         listOf(
             AllColorsSetColorFingerprint,
             DefaultColorsSetColorFingerprint,
             DynamicColorsSetColorFingerprint,
-        ).forEach { it.method.beforeEveryReturn(keys) }
+        ).forEach {
+            it.method.beforeEveryReturn(keys)
+            it.method.addInstructions(0, rememberKey)
+        }
     }
 }

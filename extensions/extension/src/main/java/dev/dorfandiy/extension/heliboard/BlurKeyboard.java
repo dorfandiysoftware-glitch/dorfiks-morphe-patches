@@ -47,7 +47,28 @@ public final class BlurKeyboard {
     }
 
     /** After HeliBoard coloured a view's background: make the main and strip backgrounds see-through. */
-    public static void afterBackground(View view, Object colorType) {
+    private static View pendingView;
+    private static Object pendingViewType;
+    private static Drawable pendingDrawable;
+    private static Object pendingDrawableType;
+
+    /** Called first thing in setBackground: R8 reuses parameter registers, so remember the arguments. */
+    public static void rememberBackground(Object view, Object colorType) {
+        pendingView = view instanceof View ? (View) view : null;
+        pendingViewType = colorType;
+    }
+
+    /** Called first thing in setColor(Drawable, ColorType). */
+    public static void rememberKey(Object drawable, Object colorType) {
+        pendingDrawable = drawable instanceof Drawable ? (Drawable) drawable : null;
+        pendingDrawableType = colorType;
+    }
+
+    public static void afterBackground() {
+        View view = pendingView;
+        Object colorType = pendingViewType;
+        pendingView = null;
+        if (view == null || colorType == null) return;
         try {
             String name = ((Enum<?>) colorType).name();
             if (!name.equals("MAIN_BACKGROUND") && !name.equals("STRIP_BACKGROUND")) {
@@ -63,7 +84,11 @@ public final class BlurKeyboard {
     }
 
     /** After HeliBoard coloured a key background drawable. */
-    public static void afterKeyColor(Drawable drawable, Object colorType) {
+    public static void afterKeyColor() {
+        Drawable drawable = pendingDrawable;
+        Object colorType = pendingDrawableType;
+        pendingDrawable = null;
+        if (drawable == null || colorType == null) return;
         try {
             String name = ((Enum<?>) colorType).name();
             if (name.equals("KEY_BACKGROUND") || name.equals("FUNCTIONAL_KEY_BACKGROUND")
