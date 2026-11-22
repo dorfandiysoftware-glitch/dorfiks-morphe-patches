@@ -35,19 +35,19 @@ jobs:
           gh release download v2.3.0 -R MorpheApp/morphe-desktop -p '*-all.jar' -D work
           curl -fsSL -o work/HeliBoard_4.2-release.apk \
             https://github.com/HeliBorg/HeliBoard/releases/download/v4.2/HeliBoard_4.2-release.apk
-          cp patches/build/libs/patches-*.mpp work/
+          find . -name "*.mpp" -not -path "./work/*"; cp "$(find patches/build -name "*.mpp" | head -1)" work/bundle.mpp
           ls -la work
 
       - name: Patch HeliBoard (checks the patch really applies)
         working-directory: work
         run: |
-          java -jar morphe-desktop-*-all.jar patch -p patches-*.mpp HeliBoard_4.2-release.apk 2>&1 | tee patch.log
+          java -jar morphe-desktop-*-all.jar patch -p bundle.mpp HeliBoard_4.2-release.apk 2>&1 | tee patch.log
           ls -la
 
       - name: Name the files
         run: |
           mkdir out
-          cp work/patches-*.mpp "out/Dorfik-Patches-${{ github.event.inputs.version }}.mpp"
+          cp work/bundle.mpp "out/Dorfik-Patches-${{ github.event.inputs.version }}.mpp"
           cp work/HeliBoard_4.2-release-patched.apk "out/HeliBoard-4.2-blur-${{ github.event.inputs.version }}.apk"
           cp work/patch.log out/patch.log
 
