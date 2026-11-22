@@ -48,7 +48,7 @@ jobs:
         run: |
           mkdir out
           cp work/bundle.mpp "out/Dorfik-Patches-${{ github.event.inputs.version }}.mpp"
-          cp work/HeliBoard_4.2-release-patched.apk "out/HeliBoard-4.2-blur-${{ github.event.inputs.version }}.apk"
+          cp "$(find work/HeliBoard -name "*.apk" | head -1)" "out/HeliBoard-4.2-blur-${{ github.event.inputs.version }}.apk"
           cp work/patch.log out/patch.log
 
       - uses: softprops/action-gh-release@v2
