@@ -15,16 +15,16 @@ val changePackageNamePatch = resourcePatch(
 ) {
     compatibleWith(COMPATIBILITY_HELIBOARD)
 
-    val packageNameOption = stringOption(
+    val packageNameOption by stringOption(
         key = "packageName",
         default = "helium314.keyboard.blur",
-        name = "Package name",
+        title = "Package name",
         description = "New package name, e.g. helium314.keyboard.blur. Must differ from the original.",
         required = true,
     )
 
     execute {
-        val newPackage = packageNameOption.value!!.trim()
+        val newPackage = packageNameOption!!.trim()
         require(Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+").matches(newPackage)) {
             "Invalid package name: $newPackage"
         }
